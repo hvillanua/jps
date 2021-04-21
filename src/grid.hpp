@@ -1,75 +1,57 @@
-#ifndef GRID_HPP
-#define GRID_HPP
+#pragma once
 
+#include <iostream>
 #include <vector>
 #include <unordered_set>
 
-struct Location {
-  int x, y;
 
-  bool operator==(const Location& a) const
-  {
-    return x == a.x && y == a.y;
-  };
-  bool operator!= (const Location a) const
-  {
-    return !(*this == a);
-  };
-  bool operator< (const Location a) const
-  {
-    return std::tie(x, y) < std::tie(a.x, a.y);
-  };
-  Location operator+ (const Location a) const
-  {
-    return Location{x + a.x, y + a.y};
-  };
-  Location operator- (const Location a) const
-  {
-    return Location{x - a.x, y - a.y};
-  };
-  std::ostream & operator<<(std::ostream & stream) const
-  {
-    stream << '(' << x << ", " << y << ')';
-    return stream;
-  };
+struct Location
+{
+	int x, y;
+
+	bool operator==(const Location& a) const noexcept { return x == a.x && y == a.y; }
+	bool operator!= (const Location& a) const noexcept { return x != a.x || y != a.y; };
+	bool operator< (const Location& a) const noexcept { return std::tie(x, y) < std::tie(a.x, a.y); };
+	Location operator+ (const Location& a) const noexcept { return {x + a.x, y + a.y}; };
+	Location operator- (const Location& a) const noexcept { return {x - a.x, y - a.y}; };
 };
+
+std::ostream& operator<<(std::ostream& os, const Location& a);
+
 
 /* implement hash function so we can put Location into an unordered_set */
-namespace std {
-  template <> struct hash<Location> {
-    typedef Location argument_type;
-    typedef std::size_t result_type;
-    std::size_t operator()(const Location& id) const noexcept {
-      return std::hash<int>()(id.x ^ (id.y << 4));
-    }
-  };
+namespace std
+{
+	template <> struct hash<Location>
+	{
+		typedef Location argument_type;
+		typedef std::size_t result_type;
+		std::size_t operator()(const Location& id) const noexcept
+		{
+			return std::hash<int>()(id.x ^ (id.y << 4));
+		}
+	};
 }
 
-class Grid {
-  public:
-    
-    std::unordered_set<Location> walls;
+class Grid
+{
+private:
+	int width, height;
 
-    Grid(int width_, int height_, std::unordered_set<Location> walls_) : 
-      width(width_), height(height_), walls(walls_) {};
+public:
+	std::unordered_set<Location> walls;
 
-    int get_width() const {return width;};
+	Grid(int width_, int height_, std::unordered_set<Location> walls_) : width(width_), height(height_), walls(walls_) {};
 
-    int get_heigth() const {return height;};
+	int get_width() const {return width;};
+	int get_heigth() const {return height;};
 
-    bool in_bounds(const Location loc) const;
+	bool in_bounds(const Location& loc) const noexcept { return 0 <= loc.x && loc.x < width && 0 <= loc.y && loc.y < height; };
+	bool passable(const Location& loc) const { return walls.find(loc) == walls.end(); };
+	bool valid(const Location& loc) const { return in_bounds(loc) && passable(loc); };
 
-    bool passable(const Location loc) const;
-
-    bool valid(const Location loc) const;
-
-    std::vector<Location> neighbours(const Location current) const;
-
-    std::vector<Location> pruned_neighbours(const Location current, const Location* parent) const;
-
-  private:
-    int width, height;
-    static std::array<Location, 8> DIRS;
+	std::vector<Location> neighbours(const Location& current) const;
+	std::vector<Location> pruned_neighbours(const Location& current, const Location& parent) const;
 };
 
-#endif
+const Location NoneLoc {-1, -1};
