@@ -18,6 +18,7 @@ namespace Tool
 		const std::unordered_map<Location, double>& distances = {},
 		const std::unordered_map<Location, Location>& point_to = {},
 		const std::vector<Location>& path = {},
+		const std::unordered_map<Location, Location>& came_from = {},
 		const Location& start = NoneLoc,
 		const Location& goal = NoneLoc);
 };

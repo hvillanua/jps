@@ -8,14 +8,16 @@
 struct Location
 {
 	int x, y;
-
-	bool operator==(const Location& a) const noexcept { return x == a.x && y == a.y; }
-	bool operator!= (const Location& a) const noexcept { return x != a.x || y != a.y; };
-	bool operator< (const Location& a) const noexcept { return std::tie(x, y) < std::tie(a.x, a.y); };
-	Location operator+ (const Location& a) const noexcept { return {x + a.x, y + a.y}; };
-	Location operator- (const Location& a) const noexcept { return {x - a.x, y - a.y}; };
+	Location direction() const;
 };
 
+bool operator==(const Location& a, const Location& b) noexcept;
+bool operator!=(const Location& a, const Location& b) noexcept;
+bool operator<(const Location& a, const Location& b) noexcept;
+Location operator+(const Location& a, const Location& b) noexcept;
+Location operator-(const Location& a, const Location& b) noexcept;
+Location operator*(const int a, const Location& b) noexcept;
+Location operator*(const Location& a, const int b) noexcept;
 std::ostream& operator<<(std::ostream& os, const Location& a);
 
 
@@ -49,9 +51,11 @@ public:
 	bool in_bounds(const Location& loc) const noexcept { return 0 <= loc.x && loc.x < width && 0 <= loc.y && loc.y < height; };
 	bool passable(const Location& loc) const { return walls.find(loc) == walls.end(); };
 	bool valid(const Location& loc) const { return in_bounds(loc) && passable(loc); };
+	bool forced(const Location& loc, const Location& parent, const Location& travel_dir) const;
 
 	std::vector<Location> neighbours(const Location& current) const;
 	std::vector<Location> pruned_neighbours(const Location& current, const Location& parent) const;
+	// std::vector<Location> forced_neighbours(const Location& current, const Location& parent) const;
 };
 
 const Location NoneLoc {-1, -1};

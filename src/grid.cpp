@@ -14,54 +14,115 @@ const static Location DIRS[] {
 	{1, -1}, {-1, -1}
 };
 
+Location Location::direction() const
+{
+	return Location{x>0 ? 1 : (x<0 ? -1 : 0), y>0 ? 1 : (y<0 ? -1 : 0)};
+}
+
+bool operator==(const Location& a, const Location& b) noexcept
+{
+	return a.x == b.x && a.y == b.y;
+}
+
+bool operator!=(const Location& a, const Location& b) noexcept
+{
+	return a.x != b.x || a.y != b.y;
+}
+
+bool operator<(const Location& a, const Location& b) noexcept
+{
+	return std::tie(a.x, a.y) < std::tie(b.x, b.y);
+}
+
+Location operator+(const Location& a, const Location& b) noexcept
+{
+	return {a.x + b.x, a.y + b.y};
+}
+
+Location operator-(const Location& a, const Location& b) noexcept
+{
+	return {a.x - b.x, a.y - b.y};
+}
+
+Location operator*(const int a, const Location& b) noexcept
+{
+	return {a * b.x, a * b.y};
+}
+
+Location operator*(const Location& a, const int b) noexcept
+{
+	return {b * a.x, b * a.y};
+}
 
 std::ostream& operator<<(std::ostream& os, const Location& a)
 {
 	return os << "<Location {" << a.x << ", " << a.y << "}>";
-};
+}
+
+bool Grid::forced(const Location& loc, const Location& parent, const Location& travel_dir) const{
+	const Location dir {(loc - parent).direction()};
+	// Diagonal neighbour
+	if(travel_dir.x != 0 && travel_dir.y != 0){
+		if((dir.x == travel_dir.x && dir.y == -travel_dir.y) || 
+	   		(dir.x == -travel_dir.x && dir.y == travel_dir.y)){
+			return true;
+		}
+	}
+	// Horizontal or vertical neighbour
+	else if(dir.x != 0 && dir.y != 0){
+		return true;
+	}
+	return false;
+}
 
 
 vector<Location> Grid::neighbours(const Location& current) const
 {
 	vector<Location> results;
-	for(auto& dir : DIRS)
+	for(auto& dir : DIRS){
 		if(valid(current + dir)) results.push_back(current + dir);
+	}
 	return results;
 }
 
 vector<Location> Grid::pruned_neighbours(const Location& current, const Location& parent) const
 {
-	if(parent == NoneLoc)
+	if(parent == NoneLoc){
 		return neighbours(current);
-
+	}
 	vector<Location> neighbours;
-	const auto dir = current - parent;
+	const auto dir = (current - parent).direction();
 	// Diagonal neighbour
-	if(dir.x != 0 && dir.y != 0)
-	{
+	if(dir.x != 0 && dir.y != 0){
 		const Location dir_x {dir.x, 0};
 		const Location dir_y {0, dir.y};
 
 		// Add natural neighbours
-		for(const auto move_dir : {dir, dir_x, dir_y})
+		for(const auto& move_dir : {dir, dir_x, dir_y}){
 			if(valid(current + move_dir)) neighbours.push_back(current + move_dir);
-
+		}
 		// Add forced neighbours
-		// Create lateral direction to check for obstacles
-		for(const auto& candidate : {parent + dir_x, parent + dir_y})
-			if(!valid(candidate) && valid(candidate + dir_x)) neighbours.push_back(candidate + dir_x);
+		for(const auto& candidate_dir : {dir_x, dir_y}){
+			if(!valid(parent + candidate_dir) && valid(parent + 2 * candidate_dir)){
+ 				neighbours.push_back(parent + 2 * candidate_dir);
+			}
+		}
 	}
 	// Horizontal or vertical neighbour
 	else
 	{
 		// Add natural neighbours
-		if(valid(current + dir)) neighbours.push_back(current + dir);
-
+		if(valid(current + dir)){
+			neighbours.push_back(current + dir);
+		}
 		// Add forced neighbours
-		// Create lateral direction to check for obstacles
 		const Location inverted_dir {dir.y, dir.x};
-		if(!valid(current + inverted_dir) && valid(current + inverted_dir + dir)) neighbours.push_back(current + inverted_dir + dir);
-		if(!valid(current - inverted_dir) && valid(current - inverted_dir + dir)) neighbours.push_back(current - inverted_dir + dir);
+		if(!valid(current + inverted_dir) && valid(current + inverted_dir + dir)){
+			neighbours.push_back(current + inverted_dir + dir);
+		}
+		if(!valid(current - inverted_dir) && valid(current - inverted_dir + dir)){
+			neighbours.push_back(current - inverted_dir + dir);
+		}
 	}
 	return neighbours;
 }
