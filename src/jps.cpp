@@ -1,8 +1,7 @@
-#include <cmath>
 #include <iostream>
 #include <queue>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 #include "grid.hpp"
 #include "tools.hpp"
@@ -14,16 +13,6 @@ typedef priority_queue<PQElement, vector<PQElement>, greater<PQElement>> PQLoc;
 
 typedef double(heuristic_fn)(const Location&, const Location&);
 
-
-inline double manhattan(const Location& a, const Location& b)
-{
-	return abs(a.x - b.x) + abs(a.y - b.y);
-}
-
-inline double euclidean(const Location& a, const Location& b)
-{
-	return sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
-}
 
 Location jump(const Grid& grid, const Location initial, const Location dir,
 	const Location goal)
@@ -108,30 +97,16 @@ unordered_map<Location, Location> jps(
 
 int main()
 {
-	// {
-	// {0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
-	// {0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
-	// {0, 0, 1, 0, 0, 1, 0, 0, 0, 0},
-	// {0, 0, 1, 0, 0, 1, 0, 0, 0, 0},
-	// {0, 0, 1, 0, 0, 1, 0, 0, 0, 0},
-	// {0, 0, 1, 0, 1, 1, 1, 1, 0, 0},
-	// {0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
-	// {0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
-	// {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	// {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-	// };
 	unordered_set<Location> walls {
 		{5, 0}, {5, 1}, {2, 2}, {5, 2},
 		{2, 3}, {5, 3}, {2, 4}, {5, 4}, {2, 5}, {4, 5},
 		{5, 5}, {6, 5}, {7, 5}, {2, 6}, {2, 7}};
-	// {2, 0}, {2, 1}, {2, 8}, {2, 9}};
 	Grid map {10, 10, walls};
 
 	Location start {1, 1};
 	Location goal {6, 2};
 
-	auto came_from = jps(map, start, goal, euclidean);
+	auto came_from = jps(map, start, goal, Tool::euclidean);
 	auto path = Tool::reconstruct_path(start, goal, came_from);
-	// Tool::draw_grid(map, {}, {}, path, start, {}, goal);
-	Tool::draw_grid(map, {}, {}, {}, came_from, start, goal);
+	Tool::draw_grid(map, {}, {}, path, came_from, start, goal);
 }

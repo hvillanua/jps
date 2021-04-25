@@ -1,13 +1,16 @@
 #pragma once
 
-#include <vector>
+#include <cmath>
 #include <unordered_map>
+#include <vector>
 
 #include "grid.hpp"
 
 
 namespace Tool
 {
+	inline double manhattan(const Location& a, const Location& b) { return abs(a.x - b.x) + abs(a.y - b.y); };
+	inline double euclidean(const Location& a, const Location& b) { return sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y)); };
 	std::vector<Location> reconstruct_path(
 		const Location& start,
 		const Location& goal,

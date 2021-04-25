@@ -20,6 +20,7 @@ Location operator*(const int a, const Location& b) noexcept;
 Location operator*(const Location& a, const int b) noexcept;
 std::ostream& operator<<(std::ostream& os, const Location& a);
 
+const Location NoneLoc {-1, -1};
 
 /* implement hash function so we can put Location into an unordered_set */
 namespace std
@@ -55,7 +56,4 @@ public:
 
 	std::vector<Location> neighbours(const Location& current) const;
 	std::vector<Location> pruned_neighbours(const Location& current, const Location& parent) const;
-	// std::vector<Location> forced_neighbours(const Location& current, const Location& parent) const;
 };
-
-const Location NoneLoc {-1, -1};
