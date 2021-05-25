@@ -75,11 +75,26 @@ bool Grid::forced(const Location& loc, const Location& parent, const Location& t
 }
 
 
+bool Grid::valid_diag_move(const Location& loc, const Location& dir) const{
+	return (dir.x != 0 && dir.y != 0) && (valid(loc + dir) &&
+			(passable(loc + Location{dir.x, 0}) || passable(loc + Location{0, dir.y})));
+}
+
+
 vector<Location> Grid::neighbours(const Location& current) const
 {
 	vector<Location> results;
 	for(auto& dir : DIRS){
-		if(valid(current + dir)) results.push_back(current + dir);
+		if(dir.x != 0 && dir.y != 0){
+			if(valid_diag_move(current, dir)){
+				results.push_back(current + dir);
+			}
+		}
+		else{
+			if(valid(current + dir)){
+				results.push_back(current + dir);
+			}
+		}
 	}
 	return results;
 }
@@ -98,7 +113,16 @@ vector<Location> Grid::pruned_neighbours(const Location& current, const Location
 
 		// Add natural neighbours
 		for(const auto& move_dir : {dir, dir_x, dir_y}){
-			if(valid(current + move_dir)) neighbours.push_back(current + move_dir);
+			if(move_dir.x != 0 && move_dir.y != 0){
+				if(valid_diag_move(current, move_dir)){
+					neighbours.push_back(current + move_dir);
+				}
+			}
+			else{
+				if(valid(current + move_dir)){
+					neighbours.push_back(current + move_dir);
+				}
+			}
 		}
 		// Add forced neighbours
 		for(const auto& candidate_dir : {dir_x, dir_y}){

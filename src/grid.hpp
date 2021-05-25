@@ -52,6 +52,7 @@ public:
 	bool in_bounds(const Location& loc) const noexcept { return 0 <= loc.x && loc.x < width && 0 <= loc.y && loc.y < height; };
 	bool passable(const Location& loc) const { return walls.find(loc) == walls.end(); };
 	bool valid(const Location& loc) const { return in_bounds(loc) && passable(loc); };
+	bool valid_diag_move(const Location& loc, const Location& dir) const;
 	bool forced(const Location& loc, const Location& parent, const Location& travel_dir) const;
 
 	std::vector<Location> neighbours(const Location& current) const;
