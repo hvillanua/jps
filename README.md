@@ -3,11 +3,13 @@
 ## Motivation
 I started this work as an exercise to remember C++ and learn about modern C++.
 It's been some time that I wanted to implement JPS myself, so I decided to use it as the base project.
+Also using this as a base to learn some new skills building a backend and frontend for the application.
 
-## Download, compile and run
-Clone the repository:
+## Download, install requirements, compile and run
+Clone the repository and run the server:
 ```console
 user@user-pc:~$ git clone https://github.com/hvillanua/jps.git
+user@user-pc:~$ sudo apt-get install libboost-all-dev
 user@user-pc:~$ cd jps
 user@user-pc:~$ make
 user@user-pc:~$ ./jps

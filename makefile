@@ -4,7 +4,7 @@ APP := jps
 SOURCE_DIR := src
 OBJECT_DIR := obj
 
-COMMON_FLAGS = -Wall -std=c++17
+COMMON_FLAGS = -Wall -std=c++17 -lpthread -lboost_system -lz
 COMPILE_FLAGS := -g
 LINK_FLAGS := -g
 

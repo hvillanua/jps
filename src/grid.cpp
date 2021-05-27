@@ -1,7 +1,7 @@
 #include "grid.hpp"
 
-
 using namespace std;
+using namespace nlohmann;
 
 
 const static Location DIRS[] {
@@ -16,6 +16,15 @@ const static Location DIRS[] {
 Location Location::direction() const
 {
 	return Location{x>0 ? 1 : (x<0 ? -1 : 0), y>0 ? 1 : (y<0 ? -1 : 0)};
+}
+
+void to_json(json& j, const Location& a) {
+        j = json{{"x", a.x}, {"y", a.y}};
+}
+
+void from_json(const json& j, Location& a) {
+	j.at("x").get_to(a.x);
+	j.at("y").get_to(a.y);
 }
 
 bool operator==(const Location& a, const Location& b) noexcept
@@ -72,6 +81,20 @@ bool Grid::forced(const Location& loc, const Location& parent, const Location& t
 		return true;
 	}
 	return false;
+}
+
+void to_json(json& j, const Grid& a) {
+	vector<json> vec;
+	for(const auto& loc: a.walls){
+		vec.push_back(json(loc));
+	}
+	j = json{{"width", a.get_width()}, {"height", a.get_heigth()}, {"walls", a.walls}};
+}
+
+void from_json(const json& j, Grid& a) {
+	j.at("width").get_to(a.width);
+	j.at("height").get_to(a.height);
+	j.at("walls").get_to(a.walls);
 }
 
 

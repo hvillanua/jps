@@ -4,6 +4,7 @@
 #include <vector>
 #include <unordered_set>
 
+#include "json.hpp"
 
 struct Location
 {
@@ -44,6 +45,7 @@ private:
 public:
 	std::unordered_set<Location> walls;
 
+	Grid() {};
 	Grid(int width_, int height_, std::unordered_set<Location> walls_) : width(width_), height(height_), walls(walls_) {};
 
 	int get_width() const {return width;};
@@ -54,7 +56,13 @@ public:
 	bool valid(const Location& loc) const { return in_bounds(loc) && passable(loc); };
 	bool valid_diag_move(const Location& loc, const Location& dir) const;
 	bool forced(const Location& loc, const Location& parent, const Location& travel_dir) const;
+	friend void from_json(const nlohmann::json& j, Grid& a);
 
 	std::vector<Location> neighbours(const Location& current) const;
 	std::vector<Location> pruned_neighbours(const Location& current, const Location& parent) const;
 };
+
+void to_json(nlohmann::json& j, const Location& a);
+void from_json(const nlohmann::json& j, Location& a);
+void to_json(nlohmann::json& j, const Grid& a);
+void from_json(const nlohmann::json& j, Grid& a);
