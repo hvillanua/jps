@@ -1,4 +1,11 @@
+# Object files
 *.o
+
+# IDE related
 *.vscode*
 
+# executable
 jps
+
+# local command list for tests
+curl.txt
