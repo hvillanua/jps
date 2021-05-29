@@ -99,6 +99,7 @@ void from_json(const json& j, Grid& a) {
 
 
 bool Grid::valid_diag_move(const Location& loc, const Location& dir) const{
+	// TODO: seems like there's a bug?
 	return (dir.x != 0 && dir.y != 0) && (valid(loc + dir) &&
 			(passable(loc + Location{dir.x, 0}) || passable(loc + Location{0, dir.y})));
 }

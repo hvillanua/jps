@@ -23,6 +23,7 @@ for(i=0; i<row_cells; i++){
     cell.setAttribute("wall", false);
     cell.ondrop = (e) => {drop(e);};
     cell.ondragover = (e) => {allowDrop(e);};
+    cell.onclick = (e) => {clickWall(e);};
     elems[0].appendChild(cell);
   }
 }
@@ -64,7 +65,28 @@ for(i=0; i<imgs.length; i++){
 }
 
 const api = new URL("http://127.0.0.1:18080");
-function runJPS(){
+
+function sendGrid(){
+  let url = new URL("/grid", api);
+  // TODO: walls don't seem to get updated and sent fast enough?
+  const walls = Array.from(document.querySelectorAll("[wall=true]")).map(elem => {
+    return new Cell(parseInt(elem.getAttribute("x")), parseInt(elem.getAttribute("y")));
+  });
+  const json_data = {
+    "width": col_cells,
+    "height": row_cells,
+    "walls": walls};
+  fetch(url, {method: "PUT", body: JSON.stringify(json_data)})
+  .then(response => {
+    return response.json();
+  })
+  .then(json => {
+    console.log(json);
+    requestRun();
+  });
+}
+
+function requestRun(){
   let url = new URL("/run", api);
   let start_cell = document.querySelector("[start=true]");
   let goal_cell = document.querySelector("[goal=true]");
@@ -81,6 +103,10 @@ function runJPS(){
   });
 }
 
+function runJPS(){
+  sendGrid();
+}
+
 function clearGrid(){
   let url = new URL("grid/clear", api);
   url.searchParams.append("width", col_cells);
@@ -92,6 +118,7 @@ function clearGrid(){
   .then(json => {
     clearPath();
     restoreLocations();
+    clearWalls();
   });
 }
 
@@ -134,6 +161,12 @@ function clearPath(){
   });
 }
 
+function clearWalls(){
+  document.querySelectorAll("[wall=true]").forEach(elem => {
+    elem.setAttribute("wall", false);
+  })
+}
+
 function drawPath(path, start_cell){
   // cells are in order from start to goal, not including start
   if(path == null){
@@ -161,7 +194,7 @@ function drawPath(path, start_cell){
 
 function allowDrop(e) {
   // location can't be wall nor start/goal
-  if(e.target.tagName.toLowerCase() == "div"
+  if(e.target.tagName.toLowerCase() === "div"
     && e.target.getAttribute("wall") === "false"
     && e.target.getAttribute("start") == null
     && e.target.getAttribute("goal") == null){
@@ -181,4 +214,23 @@ function drop(e) {
   elem.parentElement.removeAttribute(elem.id);
   e.target.appendChild(document.getElementById(data));
   e.target.setAttribute(elem.id, true);
+}
+
+function isToggleWall(elem){
+  return elem.tagName.toLowerCase() === "div"
+    && elem.getAttribute("start") == null
+    && elem.getAttribute("goal") == null;
+}
+
+function clickWall(e) {
+  if(isToggleWall(e.target) && e.target.getAttribute("wall") === "false"){
+    e.target.setAttribute("wall", true);
+  }
+  else if(isToggleWall(e.target) && e.target.getAttribute("wall") === "true"){
+    e.target.setAttribute("wall", false);
+  }
+}
+
+function dragWall(e) {
+
 }

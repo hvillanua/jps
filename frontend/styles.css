@@ -22,6 +22,10 @@
   background: #e7d2cc;
 }
 
+.cell[wall=true] {
+  background: #868b8e;
+}
+
 img {
   padding:2px;
 }

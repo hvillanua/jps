@@ -30,6 +30,15 @@ void Server::run()
     });
 
     CROW_ROUTE(app, "/grid")
+    .methods("OPTIONS"_method)
+    ([&](){
+        auto resp {crow::response()};
+        resp.add_header("Access-Control-Allow-Origin", "*");
+        resp.add_header("Access-Control-Allow-Methods", "OPTIONS, PUT");
+        return resp;
+    });
+
+    CROW_ROUTE(app, "/grid")
     .methods("PUT"_method)
     ([&](const crow::request& req){
         auto x {crow::json::load(req.body)};
@@ -39,6 +48,7 @@ void Server::run()
         map = json::parse(req.body).get<Grid>();
         auto resp {crow::response(json{{"map", map}}.dump())};
         resp.add_header("Access-Control-Allow-Origin", "*");
+        resp.add_header("Access-Control-Allow-Methods", "OPTIONS, PUT");
         return resp;
     });
 
@@ -59,7 +69,7 @@ void Server::run()
         resp.add_header("Access-Control-Allow-Methods", "OPTIONS, PUT");
         auto width {req.url_params.get("width") != nullptr ? stoi(req.url_params.get("width")) : -1};
         auto height {req.url_params.get("height") != nullptr ? stoi(req.url_params.get("height")) : -1};
-        cout << "Width: " << width << " Hiehgt: " << height << '\n';
+        cout << "Width: " << width << " Height: " << height << '\n';
         if(width > 0 && height > 0){
             map = {width, height, defaultMapConfig.walls};
         }
