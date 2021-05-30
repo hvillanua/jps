@@ -86,7 +86,7 @@ void Server::run()
         auto resp {crow::response()};
         resp.add_header("Access-Control-Allow-Origin", "*");
         auto [start, goal] = unpackLocations(req.url_params);
-        if(!map.valid(start) || !map.valid(goal)){
+        if(!map.valid_move(start, {0, 0}) || !map.valid_move(goal, {0, 0})){
             resp.code = 400;
             resp.body = json({
                 {"error", true},

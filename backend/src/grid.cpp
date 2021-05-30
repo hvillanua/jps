@@ -1,5 +1,4 @@
 #include "grid.hpp"
-#include "tools.hpp"
 
 using namespace std;
 using namespace nlohmann;
@@ -53,6 +52,11 @@ Location operator-(const Location& a, const Location& b) noexcept
 	return {a.x - b.x, a.y - b.y};
 }
 
+Location operator-(const Location& a) noexcept
+{
+	return {-a.x, -a.y};
+}
+
 Location operator*(const int a, const Location& b) noexcept
 {
 	return {a * b.x, a * b.y};
@@ -98,25 +102,26 @@ void from_json(const json& j, Grid& a) {
 	j.at("walls").get_to(a.walls);
 }
 
-
-bool Grid::valid_diag_move(const Location& loc, const Location& dir) const{
-	// TODO: seems like there's a bug?
-	return (dir.x != 0 && dir.y != 0) && (valid(loc + dir) &&
-			(passable(loc + Location{dir.x, 0}) || passable(loc + Location{0, dir.y})));
-}
-
+bool Grid::valid_move(const Location& loc, const Location& dir) const{
+	const auto next_loc = loc + dir;
+	if(dir.x != 0 && dir.y != 0){
+		return in_bounds(next_loc) && passable(next_loc)
+			&& (passable(loc + Location{dir.x, 0}) || passable(loc + Location{0, dir.y}));
+	}
+	return in_bounds(next_loc) && passable(next_loc);
+};
 
 vector<Location> Grid::neighbours(const Location& current) const
 {
 	vector<Location> results;
 	for(auto& dir : DIRS){
 		if(dir.x != 0 && dir.y != 0){
-			if(valid_diag_move(current, dir)){
+			if(valid_move(current, dir)){
 				results.push_back(current + dir);
 			}
 		}
 		else{
-			if(valid(current + dir)){
+			if(valid_move(current, dir)){
 				results.push_back(current + dir);
 			}
 		}
@@ -130,7 +135,7 @@ vector<Location> Grid::pruned_neighbours(const Location& current, const Location
 		return neighbours(current);
 	}
 	vector<Location> neighbours;
-	const auto dir = (current - parent).direction();
+	const auto dir {(current - parent).direction()};
 	// Diagonal neighbour
 	if(dir.x != 0 && dir.y != 0){
 		const Location dir_x {dir.x, 0};
@@ -139,19 +144,19 @@ vector<Location> Grid::pruned_neighbours(const Location& current, const Location
 		// Add natural neighbours
 		for(const auto& move_dir : {dir, dir_x, dir_y}){
 			if(move_dir.x != 0 && move_dir.y != 0){
-				if(valid_diag_move(current, move_dir)){
+				if(valid_move(current, move_dir)){
 					neighbours.push_back(current + move_dir);
 				}
 			}
 			else{
-				if(valid(current + move_dir)){
+				if(valid_move(current, move_dir)){
 					neighbours.push_back(current + move_dir);
 				}
 			}
 		}
 		// Add forced neighbours
 		for(const auto& candidate_dir : {dir_x, dir_y}){
-			if(!valid(parent + candidate_dir) && valid(parent + 2 * candidate_dir)){
+			if(!valid_move(parent, candidate_dir) && valid_move(parent, 2 * candidate_dir)){
  				neighbours.push_back(parent + 2 * candidate_dir);
 			}
 		}
@@ -160,15 +165,15 @@ vector<Location> Grid::pruned_neighbours(const Location& current, const Location
 	else
 	{
 		// Add natural neighbours
-		if(valid(current + dir)){
+		if(valid_move(current, dir)){
 			neighbours.push_back(current + dir);
 		}
 		// Add forced neighbours
 		const Location inverted_dir {dir.y, dir.x};
-		if(!valid(current + inverted_dir) && valid(current + inverted_dir + dir)){
+		if(!valid_move(current, inverted_dir) && valid_move(current, inverted_dir + dir)){
 			neighbours.push_back(current + inverted_dir + dir);
 		}
-		if(!valid(current - inverted_dir) && valid(current - inverted_dir + dir)){
+		if(!valid_move(current, -inverted_dir) && valid_move(current, -inverted_dir + dir)){
 			neighbours.push_back(current - inverted_dir + dir);
 		}
 	}

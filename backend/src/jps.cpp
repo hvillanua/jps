@@ -15,7 +15,7 @@ Location jump(const Grid& grid, const Location initial, const Location dir,
 	const Location goal)
 {
 	auto new_loc = initial + dir;
-	if(!grid.valid(new_loc) || (dir.x != 0 && dir.y != 0 && !grid.valid_diag_move(initial, dir))){
+	if(!grid.valid_move(initial, dir)){
 		return NoneLoc;
 	}
 	if(new_loc == goal){
