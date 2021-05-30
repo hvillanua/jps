@@ -1,4 +1,5 @@
 #include "grid.hpp"
+#include "tools.hpp"
 
 using namespace std;
 using namespace nlohmann;
@@ -69,14 +70,14 @@ std::ostream& operator<<(std::ostream& os, const Location& a)
 
 bool Grid::forced(const Location& loc, const Location& parent, const Location& travel_dir) const{
 	const Location dir {(loc - parent).direction()};
-	// Diagonal neighbour
+	// Diagonal move into diagonal check
 	if(travel_dir.x != 0 && travel_dir.y != 0){
 		if((dir.x == travel_dir.x && dir.y == -travel_dir.y) || 
 	   		(dir.x == -travel_dir.x && dir.y == travel_dir.y)){
 			return true;
 		}
 	}
-	// Horizontal or vertical neighbour
+	// Horizontal or vertical move into diagonal check
 	else if(dir.x != 0 && dir.y != 0){
 		return true;
 	}
