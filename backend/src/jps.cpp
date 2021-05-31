@@ -45,16 +45,17 @@ vector<Location> successors(const Grid& grid, const Location& current,
 	for(const auto& n: neighbours){
 		auto jump_point {jump(grid, current, (n - current).direction(), goal)};
 		if(jump_point != NoneLoc){
-			successors.push_back(jump_point);
+			successors.emplace_back(jump_point);
 		}
 	}
 	return successors;
 }
 
-unordered_map<Location, Location> jps(
+pair<unordered_map<Location, Location>, optional<vector<Location>>> jps(
    const Grid& grid,
    const Location& start, const Location& goal,
-   heuristic_fn heuristic)
+   heuristic_fn heuristic,
+   const bool return_jump_points)
 {
 
 	PQLoc open_set;
@@ -66,6 +67,7 @@ unordered_map<Location, Location> jps(
 	cost_so_far[start] = 0;
 	Location parent {NoneLoc};
 	int expanded (0);
+	vector<Location> jump_points;
 
 	while(!open_set.empty()){
 		const auto current {open_set.top().second};
@@ -79,6 +81,9 @@ unordered_map<Location, Location> jps(
 			break;
 		}
 		for(const auto& next : successors(grid, current, parent, goal)){
+			if(return_jump_points){
+				jump_points.emplace_back(next);
+			}
 			const auto new_cost = cost_so_far[current] + heuristic(current, next);
 			if(cost_so_far.find(next) == cost_so_far.end() || new_cost < cost_so_far[next]){
 				cost_so_far[next] = new_cost;
@@ -87,7 +92,10 @@ unordered_map<Location, Location> jps(
 			}
 		}
 	}
-	return came_from;
+	if(return_jump_points){
+		return pair{came_from, jump_points};
+	}
+	return pair{came_from, nullopt};
 }
 
 

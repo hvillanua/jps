@@ -18,7 +18,8 @@ Location jump(const Grid& grid, const Location initial, const Location dir,
 vector<Location> successors(const Grid& grid, const Location& current,
 	const Location& parent, const Location& goal);
 
-unordered_map<Location, Location> jps(
+pair<unordered_map<Location, Location>, optional<vector<Location>>> jps(
    const Grid& grid,
    const Location& start, const Location& goal,
-   heuristic_fn heuristic);
+   heuristic_fn heuristic,
+   const bool return_jump_points = false);

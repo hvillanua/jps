@@ -91,7 +91,7 @@ bool Grid::forced(const Location& loc, const Location& parent, const Location& t
 void to_json(json& j, const Grid& a) {
 	vector<json> vec;
 	for(const auto& loc: a.walls){
-		vec.push_back(json(loc));
+		vec.emplace_back(json(loc));
 	}
 	j = json{{"width", a.get_width()}, {"height", a.get_heigth()}, {"walls", a.walls}};
 }
@@ -117,12 +117,12 @@ vector<Location> Grid::neighbours(const Location& current) const
 	for(auto& dir : DIRS){
 		if(dir.x != 0 && dir.y != 0){
 			if(valid_move(current, dir)){
-				results.push_back(current + dir);
+				results.emplace_back(current + dir);
 			}
 		}
 		else{
 			if(valid_move(current, dir)){
-				results.push_back(current + dir);
+				results.emplace_back(current + dir);
 			}
 		}
 	}
@@ -146,12 +146,12 @@ vector<Location> Grid::pruned_neighbours(const Location& current, const Location
 		for(const auto& move_dir : {dir, dir_x, dir_y}){
 			if(move_dir.x != 0 && move_dir.y != 0){
 				if(valid_move(current, move_dir)){
-					neighbours.push_back(current + move_dir);
+					neighbours.emplace_back(current + move_dir);
 				}
 			}
 			else{
 				if(valid_move(current, move_dir)){
-					neighbours.push_back(current + move_dir);
+					neighbours.emplace_back(current + move_dir);
 				}
 			}
 		}
@@ -159,7 +159,7 @@ vector<Location> Grid::pruned_neighbours(const Location& current, const Location
 		for(const auto& candidate_dir : {dir_x, dir_y}){
 			const auto previous = current - dir;
 			if(!valid_move(previous, candidate_dir) && valid_move(previous, 2 * candidate_dir)){
- 				neighbours.push_back(previous + 2 * candidate_dir);
+ 				neighbours.emplace_back(previous + 2 * candidate_dir);
 			}
 		}
 	}
@@ -168,15 +168,15 @@ vector<Location> Grid::pruned_neighbours(const Location& current, const Location
 	{
 		// Add natural neighbours
 		if(valid_move(current, dir)){
-			neighbours.push_back(current + dir);
+			neighbours.emplace_back(current + dir);
 		}
 		// Add forced neighbours
 		const Location inverted_dir {dir.y, dir.x};
 		if(!valid_move(current, inverted_dir) && valid_move(current, inverted_dir + dir)){
-			neighbours.push_back(current + inverted_dir + dir);
+			neighbours.emplace_back(current + inverted_dir + dir);
 		}
 		if(!valid_move(current, -inverted_dir) && valid_move(current, -inverted_dir + dir)){
-			neighbours.push_back(current - inverted_dir + dir);
+			neighbours.emplace_back(current - inverted_dir + dir);
 		}
 	}
 	return neighbours;

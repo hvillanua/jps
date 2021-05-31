@@ -95,14 +95,15 @@ void Server::run()
             return resp;
         }
 
-        auto came_from {jps(map, start, goal, Tool::euclidean)};
+        auto [came_from, jump_points] {jps(map, start, goal, Tool::euclidean, true)};
         auto path {Tool::reconstruct_path(start, goal, came_from)};
         Tool::draw_grid(map, {}, {}, path, came_from, start, goal);
 
         resp.body = json{
             {"error", false},
             {"errormessage", ""},
-            {"path", path}}.dump();
+            {"path", path},
+            {"jump_points", jump_points.value()}}.dump();
         return resp;
     });
 

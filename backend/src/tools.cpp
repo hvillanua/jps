@@ -19,7 +19,7 @@ vector<Location> Tool::reconstruct_path(
 	vector<Location> path {};
 	Location current = goal;
 	while(current != start){
-		path.push_back(current);
+		path.emplace_back(current);
 		if(came_from.count(current)){
 			current = came_from.at(current);
 		}
