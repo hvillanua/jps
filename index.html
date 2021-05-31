@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <title>JPS path finding</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="main.js" defer></script>
+    <link rel="stylesheet" href="frontend/styles.css">
+    <script src="frontend/main.js" defer></script>
 </head>
 
 <body onload="clearGrid()">
@@ -17,10 +17,12 @@
     </span>
     Drag and drop the start and goal to change their positions.
     <ul class="legend">
-      <li><img src="resources/start.png">Start</li>
-      <li><img src="resources/goal.png">Goal</li>
+      <li><img src="frontend/resources/start.png">Start</li>
+      <li><img src="frontend/resources/goal.png">Goal</li>
       <li><span class="path_legend"></span>Path</li>
       <li><span class="wall_legend"></span>Wall</li>
+      <li><span class="jump_legend"></span>Jump node</li>
+      <li><span class="jump_path_legend"></span>Jump node laying on the path</li>
     </ul>
   </nav>
 

@@ -20,6 +20,10 @@
   border: 0.05px solid black;
 }
 
+.cell[jump=true], .jump_legend {
+  background: #a7d8de;
+}
+
 .cell[path=true], .legend .path_legend {
   background: #e7d2cc;
 }
@@ -29,7 +33,18 @@
   animation-duration: 2s;
 }
 
-.cell[wall=true], .legend .wall_legend {
+.cell[path=true][jump=true], .jump_path_legend {
+  background: repeating-linear-gradient(
+  45deg,
+  #e7d2cc,
+  #e7d2cc 3px,
+  #81b4bb 3px,
+  #81b4bb 5px
+);
+}
+
+/* duplicate simple selectors to increase specificity */
+.cell.cell.cell[wall=true], .legend .wall_legend {
   background: #868b8e;
 }
 

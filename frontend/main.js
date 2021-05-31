@@ -40,7 +40,7 @@ elems[0].style.setProperty("grid-template-rows", `repeat(${row_cells}, ${cell_si
 let default_start;
 let default_goal;
 
-let imgs = ["resources/start.png", "resources/goal.png"];
+let imgs = ["frontend/resources/start.png", "frontend/resources/goal.png"];
 for(i=0; i<imgs.length; i++){
   let col;
   if(i%2 == 0){
@@ -104,6 +104,9 @@ function requestRun(){
     return response.json();
   })
   .then(json => {
+    clearPath();
+    clearJumpPoints();
+    drawJumpPoints(json["jump_points"]);
     drawPath(json["path"], start_cell);
   });
 }
@@ -122,6 +125,7 @@ function clearGrid(){
   })
   .then(json => {
     clearPath();
+    clearJumpPoints();
     restoreLocations();
     clearWalls();
   });
@@ -161,8 +165,15 @@ function restoreLocations(){
 }
 
 function clearPath(){
+  clearInterval(interval);
   document.querySelectorAll("[path=true]").forEach(elem => {
     elem.setAttribute("path", false);
+  });
+}
+
+function clearJumpPoints(){
+  document.querySelectorAll("[jump=true]").forEach(elem => {
+    elem.setAttribute("jump", false);
   });
 }
 
@@ -179,7 +190,6 @@ function drawPath(path, start_cell){
   if(path == null){
     return;
   }
-  clearPath();
   let array = [];
   let last_cell = new Cell(
     parseInt(start_cell.getAttribute("x")),
@@ -208,6 +218,13 @@ function drawPathAnimate(path){
   }
 }
 
+function drawJumpPoints(jump_points){
+  jump_points.forEach(jump => {
+    let elem = document.querySelector(`[x="${jump["x"]}"][y="${jump["y"]}"]`);
+    elem.setAttribute("jump", true);
+  })
+}
+
 function allowDrop(e) {
   // location can't be wall nor start/goal
   if(e.target.tagName.toLowerCase() === "div"
@@ -218,11 +235,11 @@ function allowDrop(e) {
     }
 }
 
-function drag(e) {
+function drag(e){
   e.dataTransfer.setData("text", e.target.id);
 }
 
-function drop(e) {
+function drop(e){
   e.preventDefault();
   let data = e.dataTransfer.getData("text");
   if(data === ""){
@@ -242,7 +259,7 @@ function isToggleWall(elem){
     && elem.getAttribute("goal") == null;
 }
 
-function mouseDown(e) {
+function mouseDown(e){
   if(mouseDownID == -1){
     if(isToggleWall(e.target) && e.target.getAttribute("wall") === "false"){
       mouseAction = "put";
@@ -255,7 +272,7 @@ function mouseDown(e) {
   }
 }
 
-function mouseUp(e) {
+function mouseUp(e){
   //Only stop if exists
   if(mouseDownID != -1) {
     mouseDownID = -1;
@@ -263,7 +280,7 @@ function mouseUp(e) {
   }
 }
 
-function mouseOver(e) {
+function mouseOver(e){
   if(mouseDownID != -1) {
     if(isToggleWall(e.target)){
       clickWall(e);
@@ -271,7 +288,7 @@ function mouseOver(e) {
   }
 }
 
-function clickWall(e) {
+function clickWall(e){
   if(mouseAction === "put"){
     e.target.setAttribute("wall", true);
   }
