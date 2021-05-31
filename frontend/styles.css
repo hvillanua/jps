@@ -1,3 +1,5 @@
+@import "animations.css";
+
 .navigation {
   padding: 0.5%;
   background-color: #eeede7;
@@ -10,7 +12,7 @@
 
 .grid {
   display: grid;
-  gap: 0.5px;
+  /* gap: 0.5px; */
 }
   
 .cell {
@@ -18,14 +20,46 @@
   border: 0.05px solid black;
 }
 
-.cell[path=true] {
+.cell[path=true], .legend .path_legend {
   background: #e7d2cc;
 }
 
-.cell[wall=true] {
+.cell[path=true] {
+  animation-name: pathHighlight;
+  animation-duration: 2s;
+}
+
+.cell[wall=true], .legend .wall_legend {
   background: #868b8e;
 }
 
 img {
   padding:2px;
+}
+
+/* Disable selection from grid, for whole page use: "html *{" */
+.grid {
+  /*-webkit-touch-callout: none; /* iOS Safari */
+  /*-webkit-user-select: none;   /* Chrome/Safari/Opera */
+  /*-khtml-user-select: none;    /* Konqueror */
+  /*-moz-user-select: none;      /* Firefox */
+  /*-ms-user-select: none;       /* Internet Explorer/Edge*/
+   user-select: none;          /* Non-prefixed version, currently 
+                                  not supported by any browser */
+}
+
+/* basic positioning */
+.legend {
+  list-style: none;
+}
+.legend li {
+  margin-right: 20px;
+  display: inline-block;
+}
+.legend span, .legend img{
+  /* border: 0.5px solid black; */
+  float: left;
+  width: 12px;
+  height: 12px;
+  margin: 2px;
 }
