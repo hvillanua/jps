@@ -10,6 +10,7 @@ struct Location
 {
 	int x, y;
 	Location direction() const;
+	Location flip() const;
 };
 
 bool operator==(const Location& a, const Location& b) noexcept;

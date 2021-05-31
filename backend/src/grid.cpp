@@ -18,6 +18,11 @@ Location Location::direction() const
 	return Location{x>0 ? 1 : (x<0 ? -1 : 0), y>0 ? 1 : (y<0 ? -1 : 0)};
 }
 
+Location Location::flip() const
+{
+	return Location{y, x};
+}
+
 void to_json(json& j, const Location& a) {
         j = json{{"x", a.x}, {"y", a.y}};
 }
@@ -156,8 +161,8 @@ vector<Location> Grid::pruned_neighbours(const Location& current, const Location
 		}
 		// Add forced neighbours
 		for(const auto& candidate_dir : {dir_x, dir_y}){
-			if(!valid_move(parent, candidate_dir) && valid_move(parent, 2 * candidate_dir)){
- 				neighbours.push_back(parent + 2 * candidate_dir);
+			if(!valid_move(current, -candidate_dir) && valid_move(current, -candidate_dir + candidate_dir.flip())){
+ 				neighbours.push_back(current - candidate_dir + candidate_dir.flip());
 			}
 		}
 	}

@@ -14,7 +14,7 @@ typedef double(heuristic_fn)(const Location&, const Location&);
 Location jump(const Grid& grid, const Location initial, const Location dir,
 	const Location goal)
 {
-	auto new_loc = initial + dir;
+	auto new_loc {initial + dir};
 	if(!grid.valid_move(initial, dir)){
 		return NoneLoc;
 	}
@@ -41,9 +41,9 @@ vector<Location> successors(const Grid& grid, const Location& current,
 	const Location& parent, const Location& goal)
 {
 	vector<Location> successors;
-	auto neighbours = grid.pruned_neighbours(current, parent);
+	auto neighbours {grid.pruned_neighbours(current, parent)};
 	for(const auto& n: neighbours){
-		auto jump_point = jump(grid, current, (n - current).direction(), goal);
+		auto jump_point {jump(grid, current, (n - current).direction(), goal)};
 		if(jump_point != NoneLoc){
 			successors.push_back(jump_point);
 		}
@@ -68,7 +68,7 @@ unordered_map<Location, Location> jps(
 	int expanded (0);
 
 	while(!open_set.empty()){
-		const auto current = open_set.top().second;
+		const auto current {open_set.top().second};
 		if(current != start){
 			parent = came_from[current];
 		}
@@ -87,7 +87,6 @@ unordered_map<Location, Location> jps(
 			}
 		}
 	}
-	cout << "Expanded nodes: " << expanded << ". Total nodes: " << expanded + open_set.size() << '\n';
 	return came_from;
 }
 
