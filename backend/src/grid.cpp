@@ -18,11 +18,6 @@ Location Location::direction() const
 	return Location{x>0 ? 1 : (x<0 ? -1 : 0), y>0 ? 1 : (y<0 ? -1 : 0)};
 }
 
-Location Location::flip() const
-{
-	return Location{y, x};
-}
-
 void to_json(json& j, const Location& a) {
         j = json{{"x", a.x}, {"y", a.y}};
 }
