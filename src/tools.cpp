@@ -24,7 +24,8 @@ vector<Location> Tool::reconstruct_path(
 			current = came_from.at(current);
 		}
 		else{
-			break;
+			// No solution, return empty path
+			return {};
 		}
 	}
 	reverse(path.begin(), path.end());
