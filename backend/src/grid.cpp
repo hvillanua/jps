@@ -141,6 +141,7 @@ vector<Location> Grid::pruned_neighbours(const Location& current, const Location
 	}
 	vector<Location> neighbours;
 	const auto dir {(current - parent).direction()};
+
 	// Diagonal neighbour
 	if(dir.x != 0 && dir.y != 0){
 		const Location dir_x {dir.x, 0};
@@ -161,8 +162,9 @@ vector<Location> Grid::pruned_neighbours(const Location& current, const Location
 		}
 		// Add forced neighbours
 		for(const auto& candidate_dir : {dir_x, dir_y}){
-			if(!valid_move(current, -candidate_dir) && valid_move(current, -candidate_dir + candidate_dir.flip())){
- 				neighbours.push_back(current - candidate_dir + candidate_dir.flip());
+			const auto previous = current - dir;
+			if(!valid_move(previous, candidate_dir) && valid_move(previous, 2 * candidate_dir)){
+ 				neighbours.push_back(previous + 2 * candidate_dir);
 			}
 		}
 	}
