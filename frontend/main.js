@@ -30,7 +30,9 @@ for(i=0; i<row_cells; i++){
     cell.onmousedown = (e) => {mouseDown(e);};
     cell.onmouseup = (e) => {mouseUp(e);};
     cell.onmouseover = (e) => {mouseOver(e);};
-    //touchstart
+    // cell.touchstart = (e) => {mouseDown(e);}
+    // cell.touchend = (e) => {mouseDown(e);};
+    // cell.touchover = (e) => {mouseOver(e);};
     elems[0].appendChild(cell);
   }
 }
@@ -71,10 +73,10 @@ for(i=0; i<imgs.length; i++){
   cell.appendChild(img);
 }
 
-const api = new URL("http://127.0.0.1:18080");
+const api = new URL("https://www.hvillanua.com/jps/");
 
-function sendGrid(){
-  let url = new URL("/grid", api);
+function requestRun(){
+  let url = new URL("run", api);
   const walls = Array.from(document.querySelectorAll("[wall=true]")).map(elem => {
     return new Cell(parseInt(elem.getAttribute("x")), parseInt(elem.getAttribute("y")));
   });
@@ -82,24 +84,13 @@ function sendGrid(){
     "width": col_cells,
     "height": row_cells,
     "walls": walls};
-  fetch(url, {method: "PUT", body: JSON.stringify(json_data)})
-  .then(response => {
-    return response.json();
-  })
-  .then(json => {
-    requestRun();
-  });
-}
-
-function requestRun(){
-  let url = new URL("/run", api);
   let start_cell = document.querySelector("[start=true]");
   let goal_cell = document.querySelector("[goal=true]");
   url.searchParams.append("startx", start_cell.getAttribute("x"));
   url.searchParams.append("starty", start_cell.getAttribute("y"));
   url.searchParams.append("goalx", goal_cell.getAttribute("x"));
   url.searchParams.append("goaly", goal_cell.getAttribute("y"));
-  fetch(url, {method: "GET"})
+  fetch(url, {method: "PUT", body: JSON.stringify(json_data)})
   .then(response => {
     return response.json();
   })
@@ -112,23 +103,14 @@ function requestRun(){
 }
 
 function runJPS(){
-  sendGrid();
+  requestRun();
 }
 
 function clearGrid(){
-  let url = new URL("grid/clear", api);
-  url.searchParams.append("width", col_cells);
-  url.searchParams.append("height", row_cells);
-  fetch(url, {method: "PUT"})
-  .then(response => {
-    return response.json();
-  })
-  .then(json => {
-    clearPath();
-    clearJumpPoints();
-    restoreLocations();
-    clearWalls();
-  });
+  clearPath();
+  clearJumpPoints();
+  restoreLocations();
+  clearWalls();
 }
 
 class Cell {
