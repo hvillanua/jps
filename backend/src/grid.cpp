@@ -157,7 +157,7 @@ vector<Location> Grid::pruned_neighbours(const Location& current, const Location
 		}
 		// Add forced neighbours
 		for(const auto& candidate_dir : {dir_x, dir_y}){
-			const auto previous = current - dir;
+			const auto previous {current - dir};
 			if(!valid_move(previous, candidate_dir) && valid_move(previous, 2 * candidate_dir)){
  				neighbours.emplace_back(previous + 2 * candidate_dir);
 			}

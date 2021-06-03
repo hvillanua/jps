@@ -1,21 +1,16 @@
 const elems = document.getElementsByClassName("grid");
 
-// let vw = window.innerWidth;
-// let vh = window.innerHeight;
-let vw = document.documentElement.clientWidth;
-let vh = document.documentElement.clientHeight;
-let vmin = Math.min(vw, vh);
+// screen size explanation: https://dmitripavlutin.com/screen-window-page-sizes/
+let vw = window.innerWidth;
+let vh = window.innerHeight;
 
-var mouseDownID = -1;
-var mouseAction = null;
+let mouseDownID = -1;
+let mouseAction = null;
+let touchStartID = -1;
 
-let cell_size_prop = 3;
-let cell_size = vmin * cell_size_prop / 100;
-// TODO: figure out how many rows and cols we can fit
-let col_cells = Math.floor(vw / cell_size) - 1;
-let row_cells = Math.floor(vh / cell_size) - 4;
-// console.log("Columns: ", col_cells);
-// console.log("Rows: ", row_cells);
+cell_size = 30;
+let col_cells = Math.floor(vw / cell_size);
+let row_cells = Math.floor(vh / cell_size) - 2;
 for(i=0; i<row_cells; i++){
   for(j=0; j<col_cells; j++){
     let cell = document.createElement("div");
@@ -30,14 +25,14 @@ for(i=0; i<row_cells; i++){
     cell.onmousedown = (e) => {mouseDown(e);};
     cell.onmouseup = (e) => {mouseUp(e);};
     cell.onmouseover = (e) => {mouseOver(e);};
-    // cell.touchstart = (e) => {mouseDown(e);}
-    // cell.touchend = (e) => {mouseDown(e);};
-    // cell.touchover = (e) => {mouseOver(e);};
+    cell.ontouchstart = (e) => {touchStart(e);}
+    cell.ontouchend = (e) => {touchEnd(e);};
+    cell.ontouchmove = (e) => {touchMove(e);};
     elems[0].appendChild(cell);
   }
 }
-elems[0].style.setProperty("grid-template-columns", `repeat(${col_cells}, ${cell_size_prop}vmin)`);
-elems[0].style.setProperty("grid-template-rows", `repeat(${row_cells}, ${cell_size_prop}vmin)`);
+elems[0].style.setProperty("grid-template-columns", `repeat(${col_cells}, ${cell_size}px)`);
+elems[0].style.setProperty("grid-template-rows", `repeat(${row_cells}, ${cell_size}px)`);
 
 let default_start;
 let default_goal;
@@ -230,7 +225,7 @@ function drop(e){
   // when moving start or goal, remove previous cell attribute to false and new to true
   const elem = document.getElementById(data);
   elem.parentElement.removeAttribute(elem.id);
-  e.target.appendChild(document.getElementById(data));
+  e.target.appendChild(elem);
   e.target.setAttribute(elem.id, true);
   mouseDownID = -1;
 }
@@ -243,13 +238,15 @@ function isToggleWall(elem){
 
 function mouseDown(e){
   if(mouseDownID == -1){
-    if(isToggleWall(e.target) && e.target.getAttribute("wall") === "false"){
-      mouseAction = "put";
+    if(isToggleWall(e.target)){
+      if(e.target.getAttribute("wall") === "false"){
+        mouseAction = "put";
+      }
+      else if(e.target.getAttribute("wall") === "true"){
+        mouseAction = "remove";
+      }
+      clickWall(e.target);
     }
-    else if(isToggleWall(e.target) && e.target.getAttribute("wall") === "true"){
-      mouseAction = "remove";
-    }
-    clickWall(e);
     mouseDownID = 1;
   }
 }
@@ -265,16 +262,65 @@ function mouseUp(e){
 function mouseOver(e){
   if(mouseDownID != -1) {
     if(isToggleWall(e.target)){
-      clickWall(e);
+      clickWall(e.target);
     }
   }
 }
 
-function clickWall(e){
+function clickWall(elem){
   if(mouseAction === "put"){
-    e.target.setAttribute("wall", true);
+    elem.setAttribute("wall", true);
   }
   else if(mouseAction === "remove"){
-    e.target.setAttribute("wall", false);
+    elem.setAttribute("wall", false);
+  }
+}
+
+function touchStart(e){
+  let changedTouch = e.changedTouches[0];
+  let elem = document.elementFromPoint(changedTouch.clientX, changedTouch.clientY);
+  if(touchStartID == -1 && e.target.tagName.toLowerCase() === "div"){
+    if(isToggleWall(elem)){
+      if(elem.getAttribute("wall") === "false"){
+        mouseAction = "put";
+      }
+      else if(elem.getAttribute("wall") === "true"){
+        mouseAction = "remove";
+      }
+      clickWall(elem);
+    }
+  }
+  touchStartID = 1;
+  e.preventDefault();
+}
+
+function touchEnd(e){
+  if(touchStartID != -1) {
+    e.preventDefault();
+    touchStartID = -1;
+  }
+
+  if(e.target.id === "start" || e.target.id === "goal"){
+    let changedTouch = e.changedTouches[0];
+    let elem = document.elementFromPoint(changedTouch.clientX, changedTouch.clientY);
+    if(isToggleWall(elem) && elem.getAttribute("wall") === "false"){
+      // when moving start or goal, remove previous cell attribute to false and new to true
+      const original_elem = document.getElementById(e.target.id);
+      original_elem.parentElement.removeAttribute(original_elem.id);
+      elem.appendChild(original_elem);
+      elem.setAttribute(original_elem.id, true);
+    }
+  }
+}
+
+function touchMove(e){
+  if(e.target.tagName.toLowerCase() === "div"){
+    let changedTouch = e.changedTouches[0];
+    let elem = document.elementFromPoint(changedTouch.clientX, changedTouch.clientY);
+    if(touchStartID != -1) {
+      if(isToggleWall(elem)){
+        clickWall(elem);
+      }
+    }
   }
 }
