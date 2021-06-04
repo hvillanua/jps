@@ -1,5 +1,9 @@
 @import "animations.css";
 
+body {
+  min-height: 100vh;
+}
+
 .navigation {
   padding: 0.5%;
   background-color: #eeede7;

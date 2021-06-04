@@ -9,8 +9,9 @@ let mouseAction = null;
 let touchStartID = -1;
 
 cell_size = 30;
+const elDistanceToTop = window.pageYOffset + elems[0].getBoundingClientRect().top
 let col_cells = Math.floor(vw / cell_size);
-let row_cells = Math.floor(vh / cell_size) - 2;
+let row_cells = Math.floor((vh - elDistanceToTop) / cell_size);
 for(i=0; i<row_cells; i++){
   for(j=0; j<col_cells; j++){
     let cell = document.createElement("div");
@@ -25,9 +26,11 @@ for(i=0; i<row_cells; i++){
     cell.onmousedown = (e) => {mouseDown(e);};
     cell.onmouseup = (e) => {mouseUp(e);};
     cell.onmouseover = (e) => {mouseOver(e);};
-    cell.ontouchstart = (e) => {touchStart(e);}
+    cell.ontouchstart = (e) => {touchStart(e);};
     cell.ontouchend = (e) => {touchEnd(e);};
     cell.ontouchmove = (e) => {touchMove(e);};
+    cell.style.setProperty("max-width", `${cell_size}px)`);
+    cell.style.setProperty("max-height", `${cell_size}px)`);
     elems[0].appendChild(cell);
   }
 }
