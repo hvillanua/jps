@@ -8,23 +8,22 @@
 using namespace std;
 using namespace nlohmann;
 
-
 void Server::run()
 {
     crow::SimpleApp app;
 
     CROW_ROUTE(app, "/run")
-    .methods("OPTIONS"_method)
-    ([&](){
+        .methods("OPTIONS"_method)([&]()
+                                   {
         auto resp {crow::response()};
         resp.add_header("Access-Control-Allow-Origin", "*");
         resp.add_header("Access-Control-Allow-Methods", "OPTIONS, PUT");
-        return resp;
-    });
+        resp.add_header("Access-Control-Allow-Headers", "cache");
+        return resp; });
 
     CROW_ROUTE(app, "/run")
-    .methods("PUT"_method)
-    ([&](const crow::request& req){
+        .methods("POST"_method)([&](const crow::request &req)
+                                {
         auto resp {crow::response()};
         
         auto x {crow::json::load(req.body)};
@@ -35,6 +34,7 @@ void Server::run()
         Grid map {json::parse(req.body).get<Grid>()};
 
         resp.add_header("Access-Control-Allow-Origin", "*");
+        resp.add_header("Cache-Control", "private");
         auto [start, goal] = unpackLocations(req.url_params);
         if(!map.valid_move(start, {0, 0}) || !map.valid_move(goal, {0, 0})){
             resp.code = 400;
@@ -54,23 +54,25 @@ void Server::run()
             {"errormessage", ""},
             {"path", path},
             {"jump_points", jump_points.value()}}.dump();
-        return resp;
-    });
+        return resp; });
 
     app.port(18080).multithreaded().run();
 }
 
-std::tuple<Location, Location> Server::unpackLocations(const crow::query_string& qs) const{
-    auto start_x {qs.get("startx")};
-    auto start_y {qs.get("starty")};
-    auto start {NoneLoc};
-    if(start_x != nullptr || start_y != nullptr){
+std::tuple<Location, Location> Server::unpackLocations(const crow::query_string &qs) const
+{
+    auto start_x{qs.get("startx")};
+    auto start_y{qs.get("starty")};
+    auto start{NoneLoc};
+    if (start_x != nullptr || start_y != nullptr)
+    {
         start = {stoi(start_x), stoi(start_y)};
     }
-    auto goal_x {qs.get("goalx")};
-    auto goal_y {qs.get("goaly")};
-    auto goal {NoneLoc};
-    if(goal_x != nullptr || goal_y != nullptr){
+    auto goal_x{qs.get("goalx")};
+    auto goal_y{qs.get("goaly")};
+    auto goal{NoneLoc};
+    if (goal_x != nullptr || goal_y != nullptr)
+    {
         goal = {stoi(goal_x), stoi(goal_y)};
     }
     return tuple(start, goal);

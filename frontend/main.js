@@ -12,8 +12,8 @@ cell_size = 30;
 const elDistanceToTop = window.pageYOffset + elems[0].getBoundingClientRect().top
 let col_cells = Math.floor(vw / cell_size);
 let row_cells = Math.floor((vh - elDistanceToTop) / cell_size);
-for(i=0; i<row_cells; i++){
-  for(j=0; j<col_cells; j++){
+for (i = 0; i < row_cells; i++) {
+  for (j = 0; j < col_cells; j++) {
     let cell = document.createElement("div");
     cell.className = "cell";
     cell.id = i * col_cells + j;
@@ -21,14 +21,14 @@ for(i=0; i<row_cells; i++){
     cell.setAttribute("y", i);
     cell.setAttribute("path", false);
     cell.setAttribute("wall", false);
-    cell.ondrop = (e) => {drop(e);};
-    cell.ondragover = (e) => {allowDrop(e);};
-    cell.onmousedown = (e) => {mouseDown(e);};
-    cell.onmouseup = (e) => {mouseUp(e);};
-    cell.onmouseover = (e) => {mouseOver(e);};
-    cell.ontouchstart = (e) => {touchStart(e);};
-    cell.ontouchend = (e) => {touchEnd(e);};
-    cell.ontouchmove = (e) => {touchMove(e);};
+    cell.ondrop = (e) => { drop(e); };
+    cell.ondragover = (e) => { allowDrop(e); };
+    cell.onmousedown = (e) => { mouseDown(e); };
+    cell.onmouseup = (e) => { mouseUp(e); };
+    cell.onmouseover = (e) => { mouseOver(e); };
+    cell.ontouchstart = (e) => { touchStart(e); };
+    cell.ontouchend = (e) => { touchEnd(e); };
+    cell.ontouchmove = (e) => { touchMove(e); };
     cell.style.setProperty("max-width", `${cell_size}px)`);
     cell.style.setProperty("max-height", `${cell_size}px)`);
     elems[0].appendChild(cell);
@@ -41,24 +41,24 @@ let default_start;
 let default_goal;
 
 let imgs = ["frontend/resources/start.png", "frontend/resources/goal.png"];
-for(i=0; i<imgs.length; i++){
+for (i = 0; i < imgs.length; i++) {
   let col;
-  if(i%2 == 0){
+  if (i % 2 == 0) {
     col = Math.floor((col_cells / 2) - 0.2 * col_cells);
   }
-  else{
+  else {
     col = Math.floor((col_cells / 2) + 0.2 * col_cells);
   }
   let row = Math.floor((row_cells / 2));
   let id = col + row * col_cells;
   let img = document.createElement("img")
   let cell = document.getElementById(id);
-  if(i%2 == 0){
+  if (i % 2 == 0) {
     cell.setAttribute("start", true);
     default_start = cell;
     img.id = "start";
   }
-  else{
+  else {
     cell.setAttribute("goal", true);
     default_goal = cell;
     img.id = "goal";
@@ -67,13 +67,13 @@ for(i=0; i<imgs.length; i++){
   img.width = 0.85 * cell_size;
   img.height = 0.85 * cell_size;
   img.draggable = true;
-  img.ondragstart = (e) => {drag(e);};
+  img.ondragstart = (e) => { drag(e); };
   cell.appendChild(img);
 }
 
 const api = new URL("https://www.hvillanua.com/jps/");
 
-function requestRun(){
+function requestRun() {
   let url = new URL("run", api);
   const walls = Array.from(document.querySelectorAll("[wall=true]")).map(elem => {
     return new Cell(parseInt(elem.getAttribute("x")), parseInt(elem.getAttribute("y")));
@@ -81,30 +81,31 @@ function requestRun(){
   const json_data = {
     "width": col_cells,
     "height": row_cells,
-    "walls": walls};
+    "walls": walls
+  };
   let start_cell = document.querySelector("[start=true]");
   let goal_cell = document.querySelector("[goal=true]");
   url.searchParams.append("startx", start_cell.getAttribute("x"));
   url.searchParams.append("starty", start_cell.getAttribute("y"));
   url.searchParams.append("goalx", goal_cell.getAttribute("x"));
   url.searchParams.append("goaly", goal_cell.getAttribute("y"));
-  fetch(url, {method: "PUT", body: JSON.stringify(json_data)})
-  .then(response => {
-    return response.json();
-  })
-  .then(json => {
-    clearPath();
-    clearJumpPoints();
-    drawJumpPoints(json["jump_points"]);
-    drawPath(json["path"], start_cell);
-  });
+  fetch(url, { method: "POST", headers: { cache: "force-cache" }, body: JSON.stringify(json_data) })
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      clearPath();
+      clearJumpPoints();
+      drawJumpPoints(json["jump_points"]);
+      drawPath(json["path"], start_cell);
+    });
 }
 
-function runJPS(){
+function runJPS() {
   requestRun();
 }
 
-function clearGrid(){
+function clearGrid() {
   clearPath();
   clearJumpPoints();
   restoreLocations();
@@ -116,24 +117,24 @@ class Cell {
     this.x = x;
     this.y = y;
   }
-  static add(a, b){
-    return new Cell(a.x+b.x, a.y+b.y);
+  static add(a, b) {
+    return new Cell(a.x + b.x, a.y + b.y);
   }
 
-  static sub(a, b){
-    return new Cell(a.x-b.x, a.y-b.y);
+  static sub(a, b) {
+    return new Cell(a.x - b.x, a.y - b.y);
   }
 
-  static dir(a){
-    return new Cell(a.x>0 ? 1 : (a.x<0 ? -1 : 0), a.y>0 ? 1 : (a.y<0 ? -1 : 0))
+  static dir(a) {
+    return new Cell(a.x > 0 ? 1 : (a.x < 0 ? -1 : 0), a.y > 0 ? 1 : (a.y < 0 ? -1 : 0))
   }
 
-  static equals(a, b){
+  static equals(a, b) {
     return a.x === b.x && a.y === b.y;
   }
 }
 
-function restoreLocations(){
+function restoreLocations() {
   let start_cell = document.querySelector("[start=true]");
   start_cell.removeAttribute("start");
   let goal_cell = document.querySelector("[goal=true]");
@@ -144,20 +145,20 @@ function restoreLocations(){
   default_goal.appendChild(goal_cell.firstChild);
 }
 
-function clearPath(){
+function clearPath() {
   clearInterval(interval);
   document.querySelectorAll("[path=true]").forEach(elem => {
     elem.setAttribute("path", false);
   });
 }
 
-function clearJumpPoints(){
+function clearJumpPoints() {
   document.querySelectorAll("[jump=true]").forEach(elem => {
     elem.setAttribute("jump", false);
   });
 }
 
-function clearWalls(){
+function clearWalls() {
   document.querySelectorAll("[wall=true]").forEach(elem => {
     elem.setAttribute("wall", false);
   })
@@ -165,9 +166,9 @@ function clearWalls(){
 
 let interval;
 
-function drawPath(path, start_cell){
+function drawPath(path, start_cell) {
   // cells are in order from start to goal, not including start
-  if(path == null){
+  if (path == null) {
     return;
   }
   let array = [];
@@ -175,12 +176,12 @@ function drawPath(path, start_cell){
     parseInt(start_cell.getAttribute("x")),
     parseInt(start_cell.getAttribute("y")));
   array.push(document.querySelector(`[x="${last_cell.x}"][y="${last_cell.y}"]`));
-  for(i=0; i<path.length; i++){
+  for (i = 0; i < path.length; i++) {
     let pivot_cell = new Cell(path[i]["x"], path[i]["y"]);
     let dir = Cell.dir(Cell.sub(pivot_cell, last_cell));
     last_cell = Cell.add(last_cell, dir);
     array.push(document.querySelector(`[x="${last_cell.x}"][y="${last_cell.y}"]`));
-    while(!Cell.equals(last_cell, pivot_cell)){
+    while (!Cell.equals(last_cell, pivot_cell)) {
       last_cell = Cell.add(last_cell, dir);
       array.push(document.querySelector(`[x="${last_cell.x}"][y="${last_cell.y}"]`));
     }
@@ -188,17 +189,17 @@ function drawPath(path, start_cell){
   interval = setInterval(drawPathAnimate, 50, array);
 }
 
-function drawPathAnimate(path){
-  if(path.length == 0){
+function drawPathAnimate(path) {
+  if (path.length == 0) {
     clearInterval(interval);
   }
-  else{
+  else {
     let cell_elem = path.shift()
     cell_elem.setAttribute("path", true);
   }
 }
 
-function drawJumpPoints(jump_points){
+function drawJumpPoints(jump_points) {
   jump_points.forEach(jump => {
     let elem = document.querySelector(`[x="${jump["x"]}"][y="${jump["y"]}"]`);
     elem.setAttribute("jump", true);
@@ -207,22 +208,22 @@ function drawJumpPoints(jump_points){
 
 function allowDrop(e) {
   // location can't be wall nor start/goal
-  if(e.target.tagName.toLowerCase() === "div"
+  if (e.target.tagName.toLowerCase() === "div"
     && e.target.getAttribute("wall") === "false"
     && e.target.getAttribute("start") == null
-    && e.target.getAttribute("goal") == null){
-      e.preventDefault();
-    }
+    && e.target.getAttribute("goal") == null) {
+    e.preventDefault();
+  }
 }
 
-function drag(e){
+function drag(e) {
   e.dataTransfer.setData("text", e.target.id);
 }
 
-function drop(e){
+function drop(e) {
   e.preventDefault();
   let data = e.dataTransfer.getData("text");
-  if(data === ""){
+  if (data === "") {
     return;
   }
   // when moving start or goal, remove previous cell attribute to false and new to true
@@ -233,19 +234,19 @@ function drop(e){
   mouseDownID = -1;
 }
 
-function isToggleWall(elem){
+function isToggleWall(elem) {
   return elem.tagName.toLowerCase() === "div"
     && elem.getAttribute("start") == null
     && elem.getAttribute("goal") == null;
 }
 
-function mouseDown(e){
-  if(mouseDownID == -1){
-    if(isToggleWall(e.target)){
-      if(e.target.getAttribute("wall") === "false"){
+function mouseDown(e) {
+  if (mouseDownID == -1) {
+    if (isToggleWall(e.target)) {
+      if (e.target.getAttribute("wall") === "false") {
         mouseAction = "put";
       }
-      else if(e.target.getAttribute("wall") === "true"){
+      else if (e.target.getAttribute("wall") === "true") {
         mouseAction = "remove";
       }
       clickWall(e.target);
@@ -254,40 +255,40 @@ function mouseDown(e){
   }
 }
 
-function mouseUp(e){
+function mouseUp(e) {
   //Only stop if exists
-  if(mouseDownID != -1) {
+  if (mouseDownID != -1) {
     mouseDownID = -1;
     mouseAction = null;
   }
 }
 
-function mouseOver(e){
-  if(mouseDownID != -1) {
-    if(isToggleWall(e.target)){
+function mouseOver(e) {
+  if (mouseDownID != -1) {
+    if (isToggleWall(e.target)) {
       clickWall(e.target);
     }
   }
 }
 
-function clickWall(elem){
-  if(mouseAction === "put"){
+function clickWall(elem) {
+  if (mouseAction === "put") {
     elem.setAttribute("wall", true);
   }
-  else if(mouseAction === "remove"){
+  else if (mouseAction === "remove") {
     elem.setAttribute("wall", false);
   }
 }
 
-function touchStart(e){
+function touchStart(e) {
   let changedTouch = e.changedTouches[0];
   let elem = document.elementFromPoint(changedTouch.clientX, changedTouch.clientY);
-  if(touchStartID == -1 && e.target.tagName.toLowerCase() === "div"){
-    if(isToggleWall(elem)){
-      if(elem.getAttribute("wall") === "false"){
+  if (touchStartID == -1 && e.target.tagName.toLowerCase() === "div") {
+    if (isToggleWall(elem)) {
+      if (elem.getAttribute("wall") === "false") {
         mouseAction = "put";
       }
-      else if(elem.getAttribute("wall") === "true"){
+      else if (elem.getAttribute("wall") === "true") {
         mouseAction = "remove";
       }
       clickWall(elem);
@@ -297,16 +298,16 @@ function touchStart(e){
   e.preventDefault();
 }
 
-function touchEnd(e){
-  if(touchStartID != -1) {
+function touchEnd(e) {
+  if (touchStartID != -1) {
     e.preventDefault();
     touchStartID = -1;
   }
 
-  if(e.target.id === "start" || e.target.id === "goal"){
+  if (e.target.id === "start" || e.target.id === "goal") {
     let changedTouch = e.changedTouches[0];
     let elem = document.elementFromPoint(changedTouch.clientX, changedTouch.clientY);
-    if(isToggleWall(elem) && elem.getAttribute("wall") === "false"){
+    if (isToggleWall(elem) && elem.getAttribute("wall") === "false") {
       // when moving start or goal, remove previous cell attribute to false and new to true
       const original_elem = document.getElementById(e.target.id);
       original_elem.parentElement.removeAttribute(original_elem.id);
@@ -316,12 +317,12 @@ function touchEnd(e){
   }
 }
 
-function touchMove(e){
-  if(e.target.tagName.toLowerCase() === "div"){
+function touchMove(e) {
+  if (e.target.tagName.toLowerCase() === "div") {
     let changedTouch = e.changedTouches[0];
     let elem = document.elementFromPoint(changedTouch.clientX, changedTouch.clientY);
-    if(touchStartID != -1) {
-      if(isToggleWall(elem)){
+    if (touchStartID != -1) {
+      if (isToggleWall(elem)) {
         clickWall(elem);
       }
     }
