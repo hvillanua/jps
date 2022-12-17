@@ -55,6 +55,6 @@ public:
 	bool valid_move(const Location& loc, const Location& dir) const;
 	bool forced(const Location& loc, const Location& parent, const Location& travel_dir) const;
 
-	std::vector<Location> neighbours(const Location& current) const;
+	std::vector<Location> neighbours(const Location& current, const std::vector<Location>& dirs) const;
 	std::vector<Location> pruned_neighbours(const Location& current, const Location& parent) const;
 };
