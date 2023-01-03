@@ -65,22 +65,25 @@ unordered_map<Location, Location> jps(
 	came_from[start] = start;
 	cost_so_far[start] = 0;
 	Location parent {NoneLoc};
-	int expanded (0);
 
 	while(!open_set.empty()){
 		const auto current {open_set.top().second};
-		if(current != start){
-			parent = came_from[current];
-		}
-		open_set.pop();
-		expanded++;
-
 		if(current == goal){
 			break;
 		}
+
+		open_set.pop();
+		if(current != start){
+			parent = came_from[current];
+		}
+
 		for(const auto& next : successors(grid, current, parent, goal)){
 			const auto new_cost = cost_so_far[current] + heuristic(current, next);
-			if(cost_so_far.find(next) == cost_so_far.end() || new_cost < cost_so_far[next]){
+			auto existing_cost = std::numeric_limits<double>::max();
+			if (cost_so_far.count(next)) {
+				existing_cost = cost_so_far.at(next);
+			}
+			if(cost_so_far.find(next) == cost_so_far.end() || new_cost < existing_cost){
 				cost_so_far[next] = new_cost;
 				came_from[next] = current;
 				open_set.emplace(new_cost + heuristic(next, goal), next);
